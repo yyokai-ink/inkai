@@ -1,0 +1,47 @@
+// INKAI — правила Firestore. Firebase Console → Firestore → Rules → вставити, замінити ADMIN_UID. Опублікувати ДО викладення нової версії гри.
+rules_version='2'; service cloud.firestore { match /databases/{database}/documents {
+  function admin(){ return request.auth.uid in ['ADMIN_UID']; }
+  function masterOn(m){ return get(/databases/$(database)/documents/masters/$(m)).data.paidUntil > request.time; }
+  // Рейтинг: XP тижня/місяця не може зрости швидше за загальний XP; ключ сортування wsc/msc = ключ*1e9 + XP
+  function ymNow(){ return string(request.time.year())+'-'+(request.time.month()<10?'0':'')+string(request.time.month()); }   // поточний місяць за серверним часом (UTC)
+  function slotDoc(s){ return /databases/$(database)/documents/slots/$(s); }
+  function sc(n){ return n.get('wsc',0)==n.get('wk',0)*1000000000+n.get('wx',0) && n.get('msc',0)==n.get('mk',0)*1000000000+n.get('mx',0); }
+  function same(n,o){ return n.get('wx',0)==o.get('wx',0) && n.get('mx',0)==o.get('mx',0) && n.get('wk',0)==o.get('wk',0) && n.get('mk',0)==o.get('mk',0); }
+  function grow(n,o){ return (n.get('wk',0)==o.get('wk',0) ? (n.get('wx',0)>=o.get('wx',0) && n.get('wx',0)-o.get('wx',0) <= n.xp-o.xp) : n.get('wx',0) <= n.xp-o.xp)
+                          && (n.get('mk',0)==o.get('mk',0) ? (n.get('mx',0)>=o.get('mx',0) && n.get('mx',0)-o.get('mx',0) <= n.xp-o.xp) : n.get('mx',0) <= n.xp-o.xp); }
+  match /users/{u}   { allow read: if request.auth.uid==u || admin(); allow write: if request.auth.uid==u; }
+  match /public/{u}  { allow read: if request.auth!=null; allow delete: if request.auth.uid==u;
+    allow create: if request.auth.uid==u && request.resource.data.xp<=50000 && request.resource.data.xt==request.time
+                  && request.resource.data.get('wx',0)<=request.resource.data.xp && request.resource.data.get('mx',0)<=request.resource.data.xp && sc(request.resource.data);
+    allow update: if request.auth.uid==u && sc(request.resource.data) && (
+      (request.resource.data.xp==resource.data.xp && same(request.resource.data,resource.data)) ||
+      ( request.resource.data.xt==request.time && request.resource.data.xp>resource.data.xp && grow(request.resource.data,resource.data) &&
+        request.resource.data.xp-resource.data.xp <= 50000+4000*((request.time.toMillis()-resource.data.get('xt',request.time-duration.value(2,'d')).toMillis())/1000) ) ); }
+  match /referrals/{u}{ allow read: if request.auth!=null; allow create: if request.auth.uid==u; }
+  match /daylog/{x}  { allow create: if request.auth.uid==request.resource.data.uid && request.resource.data.ts==request.time; allow delete: if resource.data.uid==request.auth.uid;
+                       allow read: if admin() || resource.data.uid==request.auth.uid; }
+  match /submissions/{s}{ allow read: if request.auth!=null && (resource.data.uid==request.auth.uid || admin());
+                       allow create: if request.auth.uid==request.resource.data.uid && request.resource.data.status=='pending'; allow update: if admin(); }
+  match /masters/{m} { allow read: if request.auth!=null; allow write: if admin(); }
+  match /clients/{c} { allow create: if request.auth.uid==request.resource.data.uid && masterOn(request.resource.data.master); allow read: if admin(); }
+  match /claims/{c}  { allow create: if request.auth.uid==request.resource.data.uid && masterOn(request.resource.data.master)
+        && (request.resource.data.kind!='discount' || (existsAfter(slotDoc(request.resource.data.slot)) && getAfter(slotDoc(request.resource.data.slot)).data.claim==c && getAfter(slotDoc(request.resource.data.slot)).data.uid==request.auth.uid));   // знижка = заявка + слот одним пакетом
+                       allow read, update: if admin(); }
+  // слоти знижок: по SLOT_MAX на майстра на місяць. Слот створюється лише разом із власною заявкою; змінити або видалити не можна
+  match /slots/{s}   { allow read: if request.auth!=null;
+    allow create: if request.resource.data.uid==request.auth.uid && request.resource.data.k is int && request.resource.data.k>=1 && request.resource.data.k<=10   // ← 10 = SLOT_MAX (slots.js)
+        && s==request.resource.data.key+'_'+string(request.resource.data.k) && request.resource.data.key.matches('.*_'+ymNow())
+        && existsAfter(/databases/$(database)/documents/claims/$(request.resource.data.claim));
+    allow update, delete: if false; }
+  match /adEvents/{a}{ allow create: if request.auth!=null; }
+  match /offers/{o}  { allow read: if true; allow write: if admin(); }
+  match /events/{e}  { allow read: if request.auth!=null; allow write: if false; }
+  match /prizes/{p}  { allow read: if request.auth.uid==resource.data.uid || admin(); allow write: if false; }
+  match /duels/{id} { allow read: if request.auth!=null;
+    allow create: if request.auth.uid==request.resource.data.host.uid && request.resource.data.status=='open';
+    allow update: if request.auth!=null && (
+      (request.auth.uid==resource.data.host.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hs','hd','status','startAt']))   // господар: свій рахунок / скасування
+      || (resource.data.get('guest',null)!=null && request.auth.uid==resource.data.guest.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['gs','gd']))   // гість: свій рахунок
+      || (resource.data.get('guest',null)==null && request.resource.data.guest.uid==request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['guest','status','startAt'])) ); }   // приєднання гостя
+  match /meta/{m}    { allow read, write: if false; }
+}}

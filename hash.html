@@ -1,0 +1,7 @@
+<!DOCTYPE html><html lang="uk"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>INKAI · SHA-256</title>
+<body style="font:16px system-ui;background:#0a090d;color:#fff;max-width:520px;margin:40px auto;padding:0 16px">
+<h2>🔐 Хеш пароля адміна</h2><p>Введи пароль — отримаєш SHA-256. Скопіюй у <code>config.js → adminHash</code>. Пароль нікуди не надсилається (рахується в браузері).</p>
+<input id="p" type="password" placeholder="пароль" style="width:100%;padding:12px;border-radius:10px;border:1px solid #444;background:#111;color:#fff">
+<button onclick="go()" style="margin-top:10px;padding:12px 18px;border-radius:10px;border:0;background:#ff2a5f;color:#fff;font-weight:700">Порахувати</button>
+<pre id="o" style="white-space:pre-wrap;word-break:break-all;margin-top:14px"></pre>
+<script>async function go(){const b=new TextEncoder().encode(document.getElementById("p").value),h=await crypto.subtle.digest("SHA-256",b);document.getElementById("o").textContent=[...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,"0")).join("")}</script></body></html>
