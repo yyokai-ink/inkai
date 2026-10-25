@@ -1,4 +1,4 @@
-window.INKV=window.INKV||{};INKV.core="20261025b";
+window.INKV=window.INKV||{};INKV.core="20261026a";
 /* INKAI core.js — спільне ядро: налаштування, стан, звук, навігація, заставка, реклама-стрілка */
 
 // ═══ 0. НАЛАШТУВАННЯ 🔧 ═══

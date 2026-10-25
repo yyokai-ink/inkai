@@ -1,4 +1,4 @@
-window.INKV=window.INKV||{};INKV.meta="20261025b";
+window.INKV=window.INKV||{};INKV.meta="20261026a";
 /* INKAI meta.js — рейтинг тиждень/місяць/міста, щоденна серія, бестіарій, переродження, івенти, дуель, навчання.
    Підключається ПІСЛЯ game.js. Використовує глобальні змінні решти файлів. */
 
@@ -31,17 +31,59 @@ function dailyCard(){const i=dayIdx(),ok=dailyReady();
  <div class="grid grid-cols-7 gap-1 text-center">${DAILY.map((r,k)=>`<div class="rounded-lg py-1.5 text-[10px] ${k==i?"bg-neonGold/20 border border-neonGold":"bg-inkDark border border-inkBorder"} ${k<i||(k==i&&!ok)?"opacity-50":""}"><div class="text-base">${r.chest?"🎁":r.jd?"💎":r.souls?"⛩️":r.b?"⚡":"文"}</div>${k+1}</div>`).join("")}</div></div>`}
 
 // ═══ ГОЛОВНИЙ ЕКРАН: івент, дуель, навчання, серія ═══
-function playExtras(){let h="";const ev=curEvent();
+/* ═══ РЕЖИМИ ДНЯ (ще два, окрім івентів): різні механіки й множники. Нічний «Хякікі» лишається івентом (EVENTS). Час — локальний на пристрої. ═══ */
+const DM={
+ morning:{ic:"🌅",nm:"Ранок Тенґу|Tengu Morning",ds:"Вітер: йокаї летять швидше й частіше — монети ×1.6|Wind: yokai fly faster and more often — coins ×1.6",m:1.6,h:[6,13]},
+ evening:{ic:"🦊",nm:"Вечір Кіцуне|Kitsune Evening",ds:"Золоті лисиці = ×5, але гарбузів більше — монети ×1.4|Golden foxes are worth ×5, but more pumpkins — coins ×1.4",m:1.4,h:[17,24]}};
+function dayMode(){const h=new Date().getHours();for(const k in DM)if(h>=DM[k].h[0]&&h<DM[k].h[1])return Object.assign({id:k},DM[k]);return null}
+function dmLeft(x){const n=new Date(),e=new Date(n);e.setHours(x.h[1]>=24?0:x.h[1],0,0,0);if(x.h[1]>=24)e.setDate(e.getDate()+1);const s=Math.max(0,e-n)/1000|0;return String(s/3600|0).padStart(2,"0")+":"+String((s%3600)/60|0).padStart(2,"0")}
+function playExtras(){let h="";const ev=curEvent(),dm=dayMode();
  if(ev)h+=`<div class="card text-center !border-crimsonRed/60 glow"><b class="text-crimsonRed">${ev[3]} ${t(ev[4])}</b><div class="text-[11px] text-gray-300">${t(ev[5])}</div></div>`;
+ if(dm)h+=`<div class="card text-center !border-neonGold/60"><b class="text-neonGold">${dm.ic} ${t(dm.nm)}</b> <span class="text-[10px] text-gray-400">· ${t("ще|left")} ${dmLeft(dm)}</span><div class="text-[11px] text-gray-300">${t(dm.ds)}</div></div>`;
+ else{const h0=new Date().getHours(),nx=h0<6?DM.morning:(h0>=13&&h0<17)?DM.evening:null;if(nx)h+=`<div class="text-center text-[11px] text-gray-500">${nx.ic} ${t(nx.nm)} — ${t("о|at")} ${nx.h[0]}:00 · ${t("монети|coins")} ×${nx.m}</div>`}
  if(DUEL&&DUEL.sc>0)h+=`<div class="card text-center !border-neonGold/60"><b class="text-neonGold">⚔️ ${t("Дуель|Duel")}: ${esc(DUEL.n)} ${t("набрав|scored")} ${fmt(DUEL.sc)}</b><div class="text-[11px] text-gray-300">${t("Побий цей рахунок в одному соло-раунді — отримаєш бустер ×2 монет.|Beat this score in one solo round to win a ×2 coins boost.")}</div></div>`;
- if(!S.tut)h+=`<div class="card text-center !border-neonGold/60 glow"><b>🥷 ${t("Навчання за 1 хвилину — і перший сундук у подарунок|1-minute tutorial — and a free first chest")}</b></div>`;
- else h+=ladderCard()+dailyCard()+duelCard();
+ if(!S.tut)h+=`<div class="card text-center !border-neonGold/60 glow"><b>🥷 ${t("Натисни ГРАТИ — навчання за 1 хвилину, і перший сундук у подарунок|Press PLAY — a 1-minute tutorial and a free first chest")}</b></div>`;
  return h}
+/* ═══ ПЛАНКА НАВЧАННЯ: перший раунд навчає всіх автоматично, далі — ця планка (екскурсія по іконках + навчальний раунд) ═══ */
+function tutBar(){return `<div class="card flex items-center gap-3 !py-2.5" style="background:rgba(19,17,24,.82)"><div class="text-2xl">📖</div><div class="flex-1 min-w-0"><b class="text-xs">${t("Навчання|Tutorial")}</b><div class="text-[11px] text-gray-400">${t("Що де натискати й як грати|What to tap and how to play")}</div></div><button class="btng !px-3 !py-2 text-xs" onclick="tutMenu()">${t("Відкрити|Open")}</button></div>`}
+function tutMenu(){dlModal(`<h3 class="font-black">📖 ${t("Навчання|Tutorial")}</h3>
+ <button class="btng w-full py-3" onclick="dlClose();startTour()">👆 ${t("Показати, що де натискати|Show what every icon does")}</button>
+ <button class="btn w-full py-3" onclick="dlClose();startRound(1,{tut:1})">🎮 ${t("Навчальний раунд (без програшу)|Practice round (can't lose)")}</button>
+ <div class="text-[11px] text-gray-400 text-left space-y-1"><div>✂️ ${t("Ріж йокаїв свайпом. 3 і більше за раз — бонус.|Swipe to cut yokai. 3+ at once is a bonus.")}</div><div>${BOMB.e} ${t("Не ріж {bomb:many}: кожен −3 очки, три — кінець.|Don't cut {bomb:many}: −3 points each, three end the round.")}</div><div>❌ ${t("3 пропущені йокаї — кінець раунду.|3 missed yokai end the round.")}</div></div>
+ <button class="btn w-full" onclick="dlClose()">${t("Закрити|Close")}</button>`)}
+function startTour(){
+ go("play");
+ const T=(s,ua,en)=>({s,t:ua+"|"+en}),steps=[
+  T("#hCoins","文 Монети. Нараховуються за кожного розрізаного йокая. За них — катани, прокачка й сундуки.","文 Coins. Earned for every cut yokai. Spend them on blades, upgrades and chests."),
+  T("#hSouls","⛩️ Душі. Дають боси, дуелі й бестіарій. Потрібні для особливих покращень.","⛩️ Souls. From bosses, duels and the bestiary. Used for special upgrades."),
+  T("#hJade","💎 Нефрит. Рідкісна валюта для епічних катан і фонів.","💎 Jade. Rare currency for epic blades and backgrounds."),
+  T("#hLan","🏮 Ліхтарі. Найрідкісніша валюта — для міфічних катан.","🏮 Lanterns. The rarest currency — for mythic blades."),
+  T("#musBtn","🔊 Вмикає й вимикає музику та звуки.","🔊 Turns music and sounds on or off."),
+  T("#bSolo","⚔️ ГРАТИ — звичайний раунд. Свайпай по йокаях. Гарбуз = −3 очки, 3 пропущені йокаї = кінець.","⚔️ PLAY — a normal round. Swipe the yokai. Pumpkin = −3 points, 3 missed yokai = game over."),
+  T("#bDuo","👥 ВДВОХ — екран ділиться навпіл, граєте вдвох на одному телефоні.","👥 DUO — the screen splits in two; play together on one phone."),
+  T("#bMulti","🌐 МУЛЬТИПЛЕЄР — виклич друга на дуель за посиланням. Однакові йокаї. Перемога = печатка 🪪, 10 печаток = знижка.","🌐 ONLINE — challenge a friend by link. Identical yokai. A win = a seal 🪪; 10 seals = a discount."),
+  T('.nb[data-g="shop"]',"🛒 Магазин: катани, фони й прокачка. Біля кожної катани є «▶ Анімація» — подивись слід до покупки.","🛒 Shop: blades, backgrounds and upgrades. Each blade has “▶ Animation” — preview the trail before buying."),
+  T('.nb[data-g="chests"]',"🎁 Сундуки: ріж кришку катаною — випадають монети, бустери й навіть знижки.","🎁 Chests: slash the lid — coins, boosters and even discounts drop."),
+  T('.nb[data-g="friends"]',"👥 Друзі: запрошуй за посиланням — бонуси вам обом.","👥 Friends: invite by link — bonuses for you both."),
+  T('.nb[data-g="rewards"]',"🏆 Нагороди: розіграш тату, знижки в майстра YYOKAI, Шлях самурая.","🏆 Rewards: the tattoo raffle, discounts with master YYOKAI, the Samurai path."),
+  T('.nb[data-g="rating"]',"📊 Рейтинг: тиждень, місяць, весь час. Твоє місце видно завжди.","📊 Rating: week, month, all-time. Your place is always visible."),
+  T('.nb[data-g="profile"]',"👤 Профіль: нік, аватар, приватність і видалення даних.","👤 Profile: nickname, avatar, privacy and data deletion.")];
+ let i=0;const el=document.createElement("div");el.id="tour";el.style.cssText="position:fixed;left:0;top:0;right:0;bottom:0;z-index:250";
+ const end=()=>{el.remove();S.tour=1;save()};
+ const draw=()=>{const st=steps[i],tg=document.querySelector(st.s);
+  if(!tg||!tg.getBoundingClientRect().width){i++;return i<steps.length?draw():end()}
+  const sticky=tg.closest("#hdr,#nav");if(!sticky)tg.scrollIntoView({block:"center"});
+  const r=tg.getBoundingClientRect(),pad=6,below=r.top<innerHeight/2,pos=below?"top:"+Math.min(innerHeight-200,r.bottom+16)+"px":"bottom:"+Math.max(10,innerHeight-r.top+16)+"px";
+  el.innerHTML=`<div style="position:fixed;left:${r.left-pad}px;top:${r.top-pad}px;width:${r.width+pad*2}px;height:${r.height+pad*2}px;border-radius:14px;box-shadow:0 0 0 9999px rgba(0,0,0,.78);border:2px solid #ffb703;pointer-events:none"></div>
+  <div style="position:fixed;left:12px;right:12px;${pos};background:#15121d;border:1px solid #ffb703;border-radius:16px;padding:14px;color:#fff;font-size:14px;line-height:1.4"><div style="font-size:11px;color:#9ca3af">${i+1}/${steps.length}</div><div style="margin:6px 0 12px">${t(st.t)}</div><div style="display:flex;gap:8px"><button id="tkS" class="btn" style="flex:1">${t("Пропустити|Skip")}</button><button id="tkN" class="btng" style="flex:2">${i<steps.length-1?t("Далі ▶|Next ▶"):t("Готово ✓|Done ✓")}</button></div></div>`;
+  el.querySelector("#tkN").onclick=()=>{i++;i<steps.length?draw():end()};el.querySelector("#tkS").onclick=end};
+ document.body.appendChild(el);draw()}
 
 // ═══ НАВЧАННЯ: перший соло-раунд — без програшу: йокаї → свиток → бос → сундук ═══
 function bstHit(f,ty){S.bst=S.bst||{};const first=!S.bst[ty];S.bst[ty]=(S.bst[ty]||0)+1;if(first){S.souls+=3;pop(f,f.bx,f.by-70,"📖 +3 ⛩️",1)}
  if(G.tut){G.tut=0;S.tut=1;save();setTimeout(tutEnd,1400)}}
 function tutEnd(){if(!G.on)return;G.on=0;addPlay(G.el);ptr={};setMusic("menu");$("gm").classList.add("hidden");adTick();track("tutorial_done");
+ if(G.tutRe){toast("🎉 "+t("Готово! Навчальний раунд пройдено|Done! Practice round complete"));go("play");return}
  toast("🎉 "+t("Навчання пройдено! Тримай перший сундук|Tutorial complete! Here is your first chest"));
  afterRev=()=>go("play");runChest(["bonus","🎁","Сундук-знахідка|Found chest",0,"#ffb703"],1,"img/chest/bonus.png")}
 

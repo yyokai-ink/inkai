@@ -1,6 +1,6 @@
 /* INKAI sw.js — ЄДИНИЙ service worker: (1) кешує статику й бібліотеки → повторний запуск швидкий навіть при поганому інтернеті,
    (2) приймає push-сповіщення (замінює firebase-messaging-sw.js — той файл більше не потрібен). Ключі беруться з config.js. */
-const V="inkai-20261025b";
+const V="inkai-20261026a";
 try{importScripts("config.js")}catch(e){}
 try{const c=self.INK_CFG&&INK_CFG.firebase;if(c&&c.apiKey&&!String(c.apiKey).startsWith("PASTE")){
  importScripts("https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js","https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js");

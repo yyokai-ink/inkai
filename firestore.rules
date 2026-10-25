@@ -29,7 +29,7 @@ rules_version='2'; service cloud.firestore { match /databases/{database}/documen
                        allow read, update: if admin(); }
   // слоти знижок: по SLOT_MAX на майстра на місяць. Слот створюється лише разом із власною заявкою; змінити або видалити не можна
   match /slots/{s}   { allow read: if request.auth!=null;
-    allow create: if request.resource.data.uid==request.auth.uid && request.resource.data.k is int && request.resource.data.k>=1 && request.resource.data.k<=10   // ← 10 = SLOT_MAX (slots.js)
+    allow create: if request.resource.data.uid==request.auth.uid && request.resource.data.k is int && request.resource.data.k>=1 && request.resource.data.k<=20   // ← 20 = SLOT_MAX (slots.js)
         && s==request.resource.data.key+'_'+string(request.resource.data.k) && request.resource.data.key.matches('.*_'+ymNow())
         && existsAfter(/databases/$(database)/documents/claims/$(request.resource.data.claim));
     allow update, delete: if false; }

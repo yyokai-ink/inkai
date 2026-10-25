@@ -1,4 +1,4 @@
-window.INKV=window.INKV||{};INKV.shop="20261025b";
+window.INKV=window.INKV||{};INKV.shop="20261026a";
 /* INKAI shop.js — каталоги (клинки, фони з рідкістю), покращення, бустери, магазин
    РІДКІСТЬ: 0 звичайний · 1 рідкісний · 2 епічний (монети 文) · 3 легендарний (💎 — боси, сундуки) · 4 міфічний (🏮 — реклама, сундуки) */
 
@@ -87,7 +87,7 @@ function bladePreview(i){const bl=BL[i],p=$("pc");p.onclick=()=>p.classList.repl
  const loop=now=>{if(!cv.isConnected||p.classList.contains("hidden"))return;const dt=Math.min(.05,(now-last)/1000);last=now;g.clearRect(0,0,340,200);
   const tt=now/1000;pts.push({x:170+125*Math.sin(tt*2.1),y:100+62*Math.sin(tt*4.2+.5),t:now});while(pts.length&&now-pts[0].t>200)pts.shift();
   const P=pts,nn=P.length;if(nn>=3){const Lh=[],Rh=[];for(let k=0;k<nn;k++){const a0=P[Math.max(0,k-1)],b0=P[Math.min(nn-1,k+1)];let dx=b0.x-a0.x,dy=b0.y-a0.y;const l=Math.hypot(dx,dy)||1;dx/=l;dy/=l;const wd=bl.w*2.2*Math.sin(Math.PI*k/(nn-1))*Math.max(0,1-(now-P[k].t)/200)+.4;Lh.push([P[k].x-dy*wd,P[k].y+dx*wd]);Rh.push([P[k].x+dy*wd,P[k].y-dx*wd])}trailFill(cf,bl,P,Lh,Rh,now,g);g.globalAlpha=1;if(R()<.6)fxPart(cf,bl,P[nn-1])}
-  for(const q of cf.p){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=(q.g==null?400:q.g)*dt;q.rot=(q.rot||0)+(q.vr||0)*dt;q.l-=dt*1.6}cf.p=cf.p.filter(q=>q.l>0);drawParts(g,cf.p);g.globalAlpha=1;requestAnimationFrame(loop)};
+  for(const q of cf.p){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=(q.g==null?400:q.g)*dt;q.rot=(q.rot||0)+(q.vr||0)*dt;q.s+=(q.gs||0)*dt;q.l-=dt*1.6}cf.p=cf.p.filter(q=>q.l>0);if(!cf._bt||now-cf._bt>1400){cf._bt=now;themeBurst(cf,bl,120+R()*100,70+R()*60)}drawParts(g,cf.p);g.globalAlpha=1;requestAnimationFrame(loop)};
  requestAnimationFrame(loop)}
 const bname=b=>t(b.nm);
 const bcss=b=>b.fx=="rb"?"linear-gradient(90deg,#f00,#fa0,#ff0,#0f0,#0ff,#00f,#f0f)":b.fx=="void"?`linear-gradient(90deg,#000 30%,${b.c2})`:`linear-gradient(90deg,${b.c1},${b.c2})`;
