@@ -1,0 +1,166 @@
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #0b0b0e;
+    font-family: 'Courier New', monospace;
+    color: #f0f0f0;
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#ui-hud {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.score-board {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff3333;
+    text-shadow: 0 0 10px rgba(255, 51, 51, 0.6);
+}
+
+.combo-badge {
+    font-size: 18px;
+    color: #ffd700;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 6px 12px;
+    border: 1px solid #ffd700;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.combo-badge.active {
+    opacity: 1;
+}
+
+/* Обучение (Slow-Mo Focus) */
+.tutorial-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(11, 11, 14, 0.85);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    transition: opacity 0.4s ease;
+}
+
+.tutorial-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tutorial-content {
+    text-align: center;
+    border: 2px solid #ff3333;
+    background: #141419;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(255, 51, 51, 0.4);
+    max-width: 85%;
+}
+
+.kanji-seal {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.tutorial-content h3 {
+    color: #ff3333;
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+.tutorial-content p {
+    color: #ccc;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.ghost-stroke-animation {
+    width: 120px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #ff3333, #ffd700, transparent);
+    margin: 0 auto;
+    animation: swipeAnim 1.5s infinite ease-in-out;
+}
+
+@keyframes swipeAnim {
+    0% { transform: translateX(-50px); opacity: 0.2; }
+    50% { transform: translateX(50px); opacity: 1; }
+    100% { transform: translateX(-50px); opacity: 0.2; }
+}
+
+/* Модалка сундука */
+.chest-modal {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+}
+
+.chest-modal.hidden {
+    display: none;
+}
+
+.chest-container {
+    text-align: center;
+    background: #181820;
+    border: 2px solid #ffd700;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+}
+
+.chest-sprite {
+    width: 100px;
+    height: 100px;
+    background: #2a2a35;
+    margin: 0 auto 20px auto;
+    border-radius: 12px;
+    border: 2px dashed #ffd700;
+    transition: transform 0.1s ease;
+}
+
+.chest-progress {
+    font-size: 18px;
+    color: #ffd700;
+    margin-bottom: 10px;
+}
+
+.chest-hint {
+    font-size: 12px;
+    color: #888;
+}
