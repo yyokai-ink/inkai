@@ -247,28 +247,40 @@ const need=k=>{
 };
 const NAMES={d10:"🏷 Знижка 10% на тату|🏷 10% tattoo discount",d20:"🏷 Знижка 20%|🏷 20% discount",d30:"🏷 Знижка 30%|🏷 30% discount",d40:"🏷 Знижка 40%|🏷 40% discount",mini:"🎁 Міні-тату (до 1500 грн) · 1 раз|🎁 Mini tattoo (up to 1500 UAH) · once",big:"👑 Велике тату (7000 грн) · лише 1 раз|👑 Big tattoo (7000 UAH) · only once"};
 const rows=r=>r.map(x=>`<div><div class="flex justify-between text-[11px]"><span class="text-gray-300">${t(x[0])}</span><span class="font-mono ${x[1]>=x[2]?"text-emerald-400":"text-neonGold"}">${fmt(Math.min(x[1],x[2]))}/${fmt(x[2])}</span></div><div class="h-1.5 bg-inkDark rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-neonGold to-crimsonRed" style="width:${Math.min(100,x[1]/x[2]*100)}%"></div></div></div>`).join("");
-async function claim(id,code){if(!adultGate())return;
+// Мини-тату: ОДИН id на акаунт за календарний місяць (UTC) — і за монети, і з купона сундука. firestore.rules перевіряє його за серверним часом
+const miniId=()=>user.uid+"_tat_mini_"+today().slice(0,7);
+async function miniClaimed(){try{return (await FB.getDoc(FB.doc(db,"claims",miniId()))).exists()}catch(e){return false}}
+const MINI_DONE=()=>t("Мини-тату цього місяця вже заявлено (за покупку або купон) — наступну можна з 1-го числа (за UTC).|A mini tattoo was already requested this month (purchase or coupon) — the next one is available from the 1st (UTC).");
+const MINI_DENY=()=>t("Не вдалося подати заявку: перевір дату й час на телефоні (мають бути автоматичними) або майстер тимчасово недоступний.|Could not send the request: check that your phone's date and time are automatic, or the master is temporarily unavailable.");
+let claimBusy=0;
+async function claim(id,code){if(claimBusy)return;claimBusy=1;try{await claimInner(id,code)}finally{claimBusy=0}}   // захист від подвійного натискання
+async function claimInner(id,code){if(!adultGate())return;
  const cp=code?S.cp.find(c=>c.code==code):null;
  if(cp?cp.used:S.claimed.includes(id))return;
  if(!isReal()){alert(t("Щоб подати заявку, увійди через Google/Apple.|Sign in with Google/Apple to claim."));authMode("reg");go("auth");return}
  const ty0=cp?cp.type:id,mid=(ty0=="mini"||ty0=="big"||String(ty0).startsWith("tat"))?OWN:cp?(cp.m||(S.master&&S.master.id)):(S.master&&S.master.id),m=mid&&masterOf(mid);
  if(!m){alert(t("Обери майстра зі списку активних партнерів (вкладка «Нагороди»).|Pick a master from the active partners list (Rewards tab)."));return}
  const ty=cp?cp.type:id,tat=ty=="mini"||ty=="big"||ty.startsWith("tat"),ym=today().slice(0,7);
- const docId=user.uid+"_"+(ty=="big"?"tat_big":ty=="mini"?"tat_mini":ty.startsWith("tat")?"tat_coupon":"disc_"+ym);   // знижка — 1 на місяць, тату — 1 раз
- try{if(!tat&&!(await claimOk(m,String(ty).startsWith("d")?+String(ty).slice(1):0)))return;await claimWrite(docId,m,{uid:user.uid,master:m.id,masterName:m.nm,email:user.email||"",nick:S.nick,tier:id,code:code||"",kind:tat?"tattoo":"discount",xp:S.xp,tot:S.tot||0,days:S.days,serverDays:SD,streak:S.streak,friends:S.friends,tasks:tasksOk(),ads:S.ads,kills:S.kills,blades:S.blades.length,bgs:S.bgs.length,ts:FB.serverTimestamp(),status:"new"});
+ const isMini=ty=="mini"||ty.startsWith("tat");
+  if(isMini&&await miniClaimed()){alert(MINI_DONE());return}
+  const docId=ty=="big"?user.uid+"_tat_big":isMini?miniId():user.uid+"_disc_"+ym;   // знижка — 1 на місяць, мини-тату — 1 на місяць (спільно з покупкою), велике тату — 1 раз
+ try{if(!tat&&!(await claimOk(m,String(ty).startsWith("d")?+String(ty).slice(1):0)))return;await claimWrite(docId,m,{uid:user.uid,master:m.id,masterName:m.nm,email:user.email||"",nick:S.nick,tier:isMini?"mini":id,src:isMini?(cp?"chest":"legacy"):"",code:code||"",kind:tat?"tattoo":"discount",xp:S.xp,tot:S.tot||0,days:S.days,serverDays:SD,streak:S.streak,friends:S.friends,tasks:tasksOk(),ads:S.ads,kills:S.kills,blades:S.blades.length,bgs:S.bgs.length,ts:FB.serverTimestamp(),status:"new"});
   if(cp)cp.used=1;else S.claimed.push(id);save();rend();alert(t("Заявку надіслано майстру «|Request sent to master “")+m.nm+t("». Ми перевіримо умови й напишемо тобі.|”. We will verify and contact you."))}
- catch(e){alert(e.code=="permission-denied"?t("Така заявка вже подавалась (знижка — раз на місяць, кожне тату — раз у житті) або майстер більше не активний.|Such a claim was already sent (one discount per month, each tattoo once per lifetime) or the master is no longer active."):e.message)}
+ catch(e){alert(e.code=="permission-denied"?(isMini?((await miniClaimed())?MINI_DONE():MINI_DENY()):t("Така заявка вже подавалась (знижка — раз на місяць, велике тату — раз у житті) або майстер більше не активний.|Such a claim was already sent (one discount per month, big tattoo once per lifetime) or the master is no longer active.")):e.message)}
 }
 const MINI_PRICE=3e6,MINI_DAYS=20;
-async function buyMini(){if(!adultGate())return;
+let miniBusy=0;
+async function buyMini(){if(miniBusy)return;miniBusy=1;try{await buyMiniInner()}finally{miniBusy=0}}   // захист від подвійного натискання
+async function buyMiniInner(){if(!adultGate())return;
  sync();if(!isReal()){alert(t("Щоб подати заявку, увійди через Google/Apple.|Sign in with Google/Apple to claim."));return}
  const m=masterOf(OWN);if(!m){alert(t("Майстер YYOKAI тимчасово недоступний.|Master YYOKAI is temporarily unavailable."));return}
  if(SD<MINI_DAYS){toast(t("Потрібно більше різних днів у грі|You need more different days played"));return}
  if(S.mon<MINI_PRICE){toast(t("Не вистачає монет|Not enough coins"));return}
  if(S.friends10<3){toast(t("Запроси 3 друзів, які досягли 10 рівня|Invite 3 friends who reached level 10"));return}
- try{await FB.setDoc(FB.doc(db,"claims",user.uid+"_tat_mini_"+today().slice(0,7)),{uid:user.uid,master:m.id,masterName:m.nm,email:user.email||"",nick:S.nick,tier:"mini",code:"",kind:"tattoo",xp:S.xp,tot:S.tot||0,days:S.days,serverDays:SD,friends10:S.friends10,ts:FB.serverTimestamp(),status:"new"});
+ if(await miniClaimed()){alert(MINI_DONE());return}
+  try{await FB.setDoc(FB.doc(db,"claims",miniId()),{uid:user.uid,master:m.id,masterName:m.nm,email:user.email||"",nick:S.nick,tier:"mini",src:"coins",code:"",kind:"tattoo",xp:S.xp,tot:S.tot||0,days:S.days,serverDays:SD,friends10:S.friends10,ts:FB.serverTimestamp(),status:"new"});
   S.mon-=MINI_PRICE;save();push();track("purchase",{kind:"mini_tattoo"});rend();alert(t("Заявку надіслано майстру «|Request sent to master “")+m.nm+t("». Монети списано.|”. Coins deducted."))}
- catch(e){alert(e.code=="permission-denied"?t("Цього місяця таку заявку вже подано, або майстер більше не активний.|You already sent such a request this month, or the master is no longer active."):e.message)}}
+ catch(e){alert(e.code=="permission-denied"?((await miniClaimed())?MINI_DONE():MINI_DENY()):e.message)}}
 async function claimPrize(pid){if(!adultGate())return;
  const z=PZ.find(p=>p.id==pid);if(!z||S.pzUsed.includes(pid))return;const m=z.kind=="free"?masterOf(OWN):(S.master&&masterOf(S.master.id));
  if(!m){alert(t("Обери майстра зі списку активних партнерів.|Choose a master from the active partners list."));return}
@@ -280,7 +292,7 @@ function rRewards(){
  const cps=S.cp.filter(c=>!c.used),pz=PZ.filter(p=>!S.pzUsed.includes(p.id)),cm=S.master&&masterOf(S.master.id),okMini=!!masterOf(OWN)&&SD>=MINI_DAYS&&S.friends10>=3&&S.mon>=MINI_PRICE;
  $("view-rewards").innerHTML=`<h2 class="text-xl font-black uppercase text-center">${t("Нагороди майстра YYOKAI|YYOKAI master rewards")}</h2>${masterCard()}${raffleCard()}
  ${pz.length?`<h3 class="text-sm font-black uppercase text-center">${t("Мої призи розіграшу|My draw prizes")}</h3>`+pz.map(z=>`<div class="card flex items-center justify-between gap-2"><div><b class="text-sm">${z.kind=="free"?"🏆 "+t("Безкоштовний сеанс (тату до 7000 грн)|Free session (tattoo up to 7000 UAH)"):"🏷 "+t("Знижка|Discount")+" "+z.pct+"%"}</b><div class="text-[10px] text-gray-400">${esc(z.month)}</div></div><button class="btng shrink-0" ${(z.kind=="free"?masterOf(OWN):cm)?"":"disabled"} onclick="claimPrize('${esc(z.id)}')">${t("Забрати|Claim")}</button></div>`).join(""):""}
- <div class="card space-y-3"><h3 class="font-black text-sm text-center">🎁 ${t("Безкоштовний сеанс (тату до 1500 грн)|Free session (tattoo up to 1500 UAH)")}</h3><p class="text-[11px] text-gray-300 text-center">${t("Купується за монети раз на місяць. Обов'язково: запроси 3 друзів, які досягли 10 рівня. Сеанс виконує майстер YYOKAI.|Bought with coins once a month. Required: invite 3 friends who reached level 10. Done by master YYOKAI.")}</p>
+ <div class="card space-y-3"><h3 class="font-black text-sm text-center">🎁 ${t("Безкоштовний сеанс (тату до 1500 грн)|Free session (tattoo up to 1500 UAH)")}</h3><p class="text-[11px] text-gray-300 text-center">${t("Купується за монети. Обов'язково: запроси 3 друзів, які досягли 10 рівня. Мини-тату — не більше однієї заявки на місяць (за UTC), разом із купоном зі скрині. Сеанс виконує майстер YYOKAI.|Bought with coins. Required: invite 3 friends who reached level 10. One mini tattoo request per month (UTC), shared with the chest coupon. Done by master YYOKAI.")}</p>
   ${rows([["Різних днів у грі (за даними сервера)|Different days played (server-verified)",isReal()?SD:0,MINI_DAYS],["Друзів 10-го рівня (запроси 3)|Friends at level 10 (invite 3)",S.friends10,3],["Монет на балансі|Coins on balance",S.mon,MINI_PRICE]])}
   <button onclick="buyMini()" ${okMini?"":"disabled"} class="btng w-full py-2.5 ${okMini?"":"!from-gray-800 !to-gray-800 !text-gray-500"}">${t("Купити за|Buy for")} ${fmt(MINI_PRICE)} ${CI.mon}</button></div>
  ${cps.length?`<h3 class="text-sm font-black uppercase text-center">${t("Мої купони зі скринь|My chest coupons")}</h3>`+cps.map(c=>{const mm=masterOf(c.m||(S.master&&S.master.id)),ok=!!mm;return `<div class="card flex items-center justify-between gap-2"><div class="min-w-0"><b class="text-sm">${esc(c.lb.split(" · ")[0])}</b><div class="font-mono text-lg tracking-widest text-neonGold">#${esc(c.code)}</div><div class="text-[11px] text-gray-300">${c.mi?"@"+esc(c.mi):esc(c.mn||(mm?mm.nm:"—"))}${ok?"":" · ⛔"}</div></div><button class="btng shrink-0" ${ok?"":"disabled"} onclick="claim('${esc(c.type)}','${esc(c.code)}')">${t("Забрати|Claim")}</button></div>`}).join(""):""}

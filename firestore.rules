@@ -24,9 +24,38 @@ rules_version='2'; service cloud.firestore { match /databases/{database}/documen
                        allow create: if request.auth.uid==request.resource.data.uid && request.resource.data.status=='pending'; allow update: if admin(); }
   match /masters/{m} { allow read: if request.auth!=null; allow write: if admin(); }
   match /clients/{c} { allow create: if request.auth.uid==request.resource.data.uid && masterOn(request.resource.data.master); allow read: if admin(); }
+  // ── ЗАЯВКИ: id лише з білого списку й прив'язаний до uid; місяць в id — серверний (UTC), а не з годинника телефона ──
+  function ymOf(ts){ return string(ts.year())+'-'+(ts.month()<10?'0':'')+string(ts.month()); }
+  function cdoc(id){ return /databases/$(database)/documents/claims/$(id); }
+  // Старі id мини-тату без місяця (uid_tat_coupon / uid_tat_mini): якщо такий документ створено ЦЬОГО місяця — він рахується в місячний ліміт
+  function miniLegacyNow(u){
+    return (exists(cdoc(u+'_tat_coupon')) && ymOf(get(cdoc(u+'_tat_coupon')).data.get('ts',timestamp.date(2000,1,1)))==ymNow())
+        || (exists(cdoc(u+'_tat_mini'))   && ymOf(get(cdoc(u+'_tat_mini')).data.get('ts',timestamp.date(2000,1,1)))==ymNow()); }
+  function claimIdOk(c,d){
+    let u=request.auth.uid;
+    let k=d.get('kind','');
+    let tr=d.get('tier','');
+    return
+      // мини-тату (1500 грн): ОДНА на акаунт за календарний місяць — і за монети, і з купона сундука (той самий id → створити можна лише одну)
+      (c==u+'_tat_mini_'+ymNow() && k=='tattoo' && tr=='mini' && !miniLegacyNow(u))
+      // велике тату — раз за весь час (існуючий формат)
+   || (c==u+'_tat_big' && k=='tattoo')
+      // знижка з купона сундука — раз на місяць; слот знижки перевіряє ліміт нижче
+   || (c==u+'_disc_'+ymNow() && k=='discount')
+      // шлях самурая, печатки дуелей, flash-ескіз бестіарію
+   || (c in [u+'_ladder_2',u+'_ladder_4',u+'_ladder_7'] && k=='discount')
+   || (c==u+'_seals' && k=='discount')
+   || (c==u+'_flash' && k=='discount')
+      // приз розіграшу: лише якщо цей приз справді видано (prizes/uid_місяць) і вид заявки збігається з видом призу
+   || (c.matches(u+'_raffle_[0-9]{4}-[0-9]{2}')
+       && exists(/databases/$(database)/documents/prizes/$(u+'_'+c.split('_raffle_')[1]))
+       && (get(/databases/$(database)/documents/prizes/$(u+'_'+c.split('_raffle_')[1])).data.get('kind','')=='free' ? k=='tattoo' : k=='raffle_discount')); }
   match /claims/{c}  { allow create: if request.auth.uid==request.resource.data.uid && masterOn(request.resource.data.master)
+        && request.resource.data.get('ts',null)==request.time && claimIdOk(c,request.resource.data)
         && (request.resource.data.kind!='discount' || (existsAfter(slotDoc(request.resource.data.slot)) && getAfter(slotDoc(request.resource.data.slot)).data.claim==c && getAfter(slotDoc(request.resource.data.slot)).data.uid==request.auth.uid));   // знижка = заявка + слот одним пакетом
-                       allow read, update: if admin(); }
+                       // читати свою заявку за id можна (щоб гра показала «цього місяця вже подано»); список і зміни — лише адмін
+                       allow get: if request.auth!=null && (admin() || (resource==null ? c.matches(request.auth.uid+'_.*') : resource.data.uid==request.auth.uid));
+                       allow list, update: if admin(); }
   // слоти знижок: по SLOT_MAX на майстра на місяць. Слот створюється лише разом із власною заявкою; змінити або видалити не можна
   match /slots/{s}   { allow read: if request.auth!=null;
     allow create: if request.resource.data.uid==request.auth.uid && request.resource.data.k is int && request.resource.data.k>=1 && request.resource.data.k<=20   // ← 20 = SLOT_MAX (slots.js)
