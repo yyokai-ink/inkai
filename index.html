@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>INKAI | Студія YYOKAI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Игровой холст -->
+        <canvas id="inkCanvas"></canvas>
+        
+        <!-- Верхняя панель UI -->
+        <div id="ui-hud">
+            <div class="score-board">СЧЕТ: <span id="scoreValue">0</span></div>
+            <div class="combo-badge" id="comboBadge">COMBO x1</div>
+        </div>
+
+        <!-- Модалка обучения (Slow-Mo Focus) -->
+        <div id="tutorialOverlay" class="tutorial-overlay hidden">
+            <div class="tutorial-content">
+                <div class="kanji-seal">⚡</div>
+                <h3 id="tutorialTitle">МАСТЕРСТВО КАТАНЫ</h3>
+                <p id="tutorialText">Сделай резкий свайп через цель</p>
+                <div class="ghost-stroke-animation"></div>
+            </div>
+        </div>
+
+        <!-- Модуль сундука с механикой перекрестных свайпов -->
+        <div id="chestModal" class="chest-modal hidden">
+            <div class="chest-container" id="chestBox">
+                <div class="chest-sprite" id="chestSprite"></div>
+                <div class="chest-progress">ПЕЧАТЬ: <span id="chestHitsCount">0</span>/5</div>
+                <p class="chest-hint">Свайпай из стороны в сторону (↔)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипты игры -->
+    <script src="audio.js"></script>
+    <script src="particles.js"></script>
+    <script src="katana.js"></script>
+    <script src="chest.js"></script>
+    <script src="tutorial.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
