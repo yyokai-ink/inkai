@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="uk" data-l="ua"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="index,follow">
+<title>Raffle & Discount Rules · INKAI</title><link rel="icon" href="Иконка1.PNG"><style>*{box-sizing:border-box}body{margin:0;background:#0a090d;color:#e5e7eb;font:15px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.w{max-width:760px;margin:0 auto;padding:16px 18px 60px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+a{color:#ffb703}.top a{text-decoration:none;font-weight:700}button{background:#1b1824;color:#fff;border:1px solid #3a3450;border-radius:10px;padding:6px 12px;font-weight:700;cursor:pointer}
+h1{font-size:26px;margin:.4em 0 .1em;color:#fff}h2{font-size:17px;margin:1.6em 0 .3em;color:#ffb703}.meta{color:#9ca3af;font-size:12px;margin:0 0 14px}
+ul{padding-left:20px}li{margin:.25em 0}.box{background:#15121d;border:1px solid #2a2438;border-radius:12px;padding:12px 14px;margin:14px 0}.warn{border-color:#ff2a5f66}
+html[data-l=ua] .en{display:none}html[data-l=en] .ua{display:none}.btn{display:inline-block;background:#ff2a5f;color:#fff;text-decoration:none;font-weight:800;padding:12px 18px;border-radius:12px;margin:6px 8px 6px 0}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #2a2438;padding:8px;text-align:left;vertical-align:top}th{background:#15121d}</style></head><body><div class="w">
+<div class="top"><a href="game1.html">← INKAI</a><button id="lb">🇺🇦 / 🇬🇧</button></div>
+<div class="ua"><h1>Правила розіграшу та знижок</h1><p class="meta">Версія <span data-cfg="legalVersion">1</span> · оновлено <span data-cfg="updated"></span></p>
+<div class="box">Участь <b>безкоштовна</b>, купувати нічого не потрібно. Результат залежить від ігрових досягнень (XP), а не від ставки: це змагання на вміння, а не лотерея чи азартна гра.</div>
+<h2>1. Організатор</h2><p><span data-cfg="org.name"></span>, <span data-cfg="org.address"></span>, <a data-cfg="org.email" href="#">email</a>. Тату-послуги за призами виконує майстер YYOKAI у місті <b><span data-cfg="prize.city"></span></b> (так само і для знижок).</p>
+<h2>2. Хто може брати участь</h2><ul><li>Особи, яким виповнилося <b>18 років</b>, із зареєстрованим акаунтом (вхід через Google або Apple).</li><li>Один учасник — один акаунт. Мультиакаунти, боти, накрутка, втручання в клієнт — дискваліфікація.</li></ul>
+<h2>3. Щомісячний розіграш</h2><ol><li><b>Коли:</b> в останній день кожного місяця о <span data-cfg="prize.drawTime"></span>.</li>
+<li><b>Хто потрапляє:</b> 10 учасників (18+) з найбільшим XP, зароблених <u>у цьому календарному місяці</u> (вкладка «Місяць» рейтингу).</li>
+<li><b>Призи:</b> <b>1 безкоштовний тату-сеанс</b> у майстра YYOKAI вартістю до <span data-cfg="prize.maxFreeUAH"></span> грн — його отримує один переможець, обраний <u>випадково</u> серед десяти (генератором випадкових чисел на сервері); решта дев'ять учасників отримують <b>знижки на тату</b> у майстра YYOKAI (від 15% до 40%, за місцем у десятці).</li>
+<li><b>Як дізнатися:</b> результат показується в Грі (вкладка «Нагороди») та у push-сповіщенні, якщо вони увімкнені.</li>
+<li><b>Як забрати:</b> натисніть «Забрати» протягом <b><span data-cfg="prize.claimDays"></span> днів</b> — заявка піде майстру. Майстер зв'яжеться з вами через e-mail/месенджер і домовиться про запис. Не забрано вчасно — приз втрачається.</li></ol>
+<h2>4. Звичайні знижки (поза розіграшем)</h2><p>Знижки 2-го, 4-го та 7-го дня гри («Шлях самурая»: 5% / 10% / 20%), знижки зі скринь, бестіарію й дуелей («печатки»).</p><ul>
+<li>Діють <b><span data-cfg="prize.claimDays"></span> днів</b> з моменту заявки; не сумуються з іншими знижками чи акціями майстра.</li>
+<li>Майстер приймає <b>не більше <span data-cfg="prize.discountSlots"></span> заявок на знижки на місяць</b> (слоти). Коли слоти закінчилися — нові заявки з 1-го числа. Призи розіграшу в цей ліміт <u>не входять</u> і завжди гарантовані.</li>
+<li>Заявка — не бронювання: майстер підтверджує її й домовляється про дату. Майстер може відмовити з медичних причин або якщо запропоновані роботи виходять за межі його специфіки/сумісності.</li>
+<li>Знижка діє на роботу в студії майстра, у його місті. Витрати на проїзд, ескізи поза домовленістю та матеріали, не погоджені заздалегідь, не покриваються.</li></ul>
+<h2>5. Мініатюрне тату за <span data-cfg="prize.miniUAH"></span> грн</h2><p>Це <b>платна</b> послуга за фіксованою ціною <span data-cfg="prize.miniUAH"></span> грн у майстра YYOKAI; для замовлення потрібні умови гри (дні гри, запрошені друзі, ігрова валюта) — деталі у вкладці «Нагороди». Це не приз, а можливість замовити послугу за спеціальною ціною.</p>
+<h2>6. Загальні умови призів</h2><ul><li>Призи не обмінюються на гроші, не передаються іншим особам.</li><li>Перед сеансом — консультація, погодження ескізу, перевірка віку за документом; протипоказання перевіряє майстер.</li>
+<li>Організатор має право перевіряти результати й дискваліфікувати за порушення Умов. Рішення Організатора щодо дотримання правил остаточне, без обмеження ваших прав за законом.</li>
+<li><b>Податки.</b> Виплата чи надання призу може підлягати оподаткуванню за законодавством України. Організатор виконує обов'язки податкового агента там, де це вимагає закон; учасник відповідає за свої декларації, якщо закон цього вимагає. Уточнюйте в податкового консультанта.</li>
+<li>Організатор може змінити, призупинити або скасувати розіграш у разі форс-мажору чи виявлення зловживань, повідомивши про це в Грі.</li></ul>
+<h2>7. Персональні дані</h2><p>Для вручення призу ми передаємо майстру ваш нікнейм, e-mail і тип призу — див. <a href="privacy.html">Політику конфіденційності</a>.</p>
+<h2>8. Претензії</h2><p>Звертайтеся на <a data-cfg="org.email" href="#">email</a> протягом 30 днів після події; відповідь — до 30 днів.</p></div>
+<div class="en"><h1>Raffle & Discount Rules</h1><p class="meta">Version <span data-cfg="legalVersion">1</span> · updated <span data-cfg="updated"></span></p>
+<div class="box">Participation is <b>free</b>; no purchase is needed. The result depends on in-game achievement (XP), not on a stake: it is a skill contest, not a lottery or gambling.</div>
+<h2>1. Organizer</h2><p><span data-cfg="org.name"></span>, <span data-cfg="org.address"></span>, <a data-cfg="org.email" href="#">email</a>. Tattoo services for prizes are performed by master YYOKAI in <b><span data-cfg="prize.city"></span></b> (likewise for discounts).</p>
+<h2>2. Who may take part</h2><ul><li>Persons aged <b>18+</b> with a registered account (Google or Apple sign-in).</li><li>One participant — one account. Multi-accounts, bots, manipulation or client tampering lead to disqualification.</li></ul>
+<h2>3. Monthly raffle</h2><ol><li><b>When:</b> on the last day of each month at <span data-cfg="prize.drawTime"></span>.</li>
+<li><b>Who qualifies:</b> the 10 participants (18+) with the most XP earned <u>in that calendar month</u> (the “Month” tab of the rating).</li>
+<li><b>Prizes:</b> <b>1 free tattoo session</b> with master YYOKAI valued up to <span data-cfg="prize.maxFreeUAH"></span> UAH — won by one winner chosen <u>at random</u> among the ten (server-side random number generator); the other nine receive <b>tattoo discounts</b> with master YYOKAI (15%–40%, depending on position).</li>
+<li><b>How you learn:</b> the result is shown in the Game (“Rewards” tab) and by push notification if enabled.</li>
+<li><b>How to claim:</b> tap “Claim” within <b><span data-cfg="prize.claimDays"></span> days</b> — the request goes to the master, who contacts you by email/messenger to book. Unclaimed prizes expire.</li></ol>
+<h2>4. Regular discounts (outside the raffle)</h2><p>Day-2, day-4 and day-7 discounts (“Samurai path”: 5% / 10% / 20%), discounts from chests, bestiary and duels (“seals”).</p><ul>
+<li>Valid for <b><span data-cfg="prize.claimDays"></span> days</b> from the claim; cannot be combined with other discounts or the master's promotions.</li>
+<li>The master accepts <b>at most <span data-cfg="prize.discountSlots"></span> discount claims per month</b> (slots). When slots run out, new claims open on the 1st. Raffle prizes are <u>not</u> counted in this limit and are always guaranteed.</li>
+<li>A claim is not a booking: the master confirms it and agrees a date. The master may refuse for medical reasons or if the proposed work is outside their specialty/compatibility.</li>
+<li>The discount applies to work at the master's studio in their city. Travel, sketches outside the agreement, and materials not agreed in advance are not covered.</li></ul>
+<h2>5. Mini tattoo for <span data-cfg="prize.miniUAH"></span> UAH</h2><p>This is a <b>paid</b> service at a fixed price of <span data-cfg="prize.miniUAH"></span> UAH with master YYOKAI; ordering requires in-game conditions (days played, invited friends, in-game currency) — see the “Rewards” tab. It is not a prize but a chance to order a service at a special price.</p>
+<h2>6. General prize terms</h2><ul><li>Prizes cannot be exchanged for cash or transferred.</li><li>Before the session: consultation, sketch approval, ID age check; the master checks contraindications.</li>
+<li>The Organizer may verify results and disqualify for breaches of the Terms. The Organizer's decision on compliance is final, without limiting your statutory rights.</li>
+<li><b>Taxes.</b> Granting a prize may be taxable under Ukrainian law. The Organizer acts as tax agent where the law requires; participants are responsible for their own filings where required. Consult a tax adviser.</li>
+<li>The Organizer may change, suspend or cancel the raffle in case of force majeure or detected abuse, announcing it in the Game.</li></ul>
+<h2>7. Personal data</h2><p>To deliver a prize we pass your nickname, email and prize type to the master — see the <a href="privacy.html">Privacy Policy</a>.</p>
+<h2>8. Complaints</h2><p>Write to <a data-cfg="org.email" href="#">email</a> within 30 days of the event; we reply within 30 days.</p></div>
+</div><script src="config.js"></script><script>
+(function(){var l=localStorage.ink_lang||((navigator.language||"en").slice(0,2)=="uk"||(navigator.language||"").slice(0,2)=="ru"?"ua":"en"),h=document.documentElement;h.dataset.l=l;h.lang=l=="ua"?"uk":"en";
+document.getElementById("lb").onclick=function(){l=l=="ua"?"en":"ua";localStorage.ink_lang=l;h.dataset.l=l;h.lang=l=="ua"?"uk":"en"};
+var c=window.INK_CFG||{};document.querySelectorAll("[data-cfg]").forEach(function(e){var v=e.dataset.cfg.split(".").reduce(function(o,k){return o==null?o:o[k]},c);if(v!=null)e.textContent=v;
+ if(e.dataset.cfg=="org.email"&&e.tagName=="A"){e.href="mailto:"+v}});
+document.querySelectorAll("[data-pay]").forEach(function(a){var v=(c.pay||{})[a.dataset.pay];if(v)a.href=v});})();</script></body></html>
