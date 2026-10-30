@@ -24,18 +24,17 @@ function mgmStart(){
  const CW=Math.min(W-20,360),CH=Math.min(H-150,560),CL=(W-CW)/2,CR=CL+CW,CT=Math.max(70,(H-CH)/2+20),CB=CT+CH,s=CW/360,LINE=CT+76*s,GR=1600*s,HY=CT+32*s,RR=MGMT.map(a=>a[2]*s*MGM.RS),DT=1/120,OM=MGM.OM,ZE=MGM.ZE;
  g.hx=W/2;g.got=Object.keys(BOSS).filter(k=>(S.bst||{})[k]>0);const bk=g.got.length?g.got[R()*g.got.length|0]:null,LD={},okI=i=>i&&i.complete&&i.naturalWidth;
  const ld=u=>LD[u]||(LD[u]=Object.assign(new Image(),{src:u}));
- // ── Желейні слизні: кожен рівень малюється ОДИН раз у кеш-канвас, далі лише drawImage (це й прибирає лаги) ──
  const SC={},custom=t0=>{const k="c"+t0;if(!LD[k]){const im=new Image();im.onload=()=>{im._ok=1};im.onerror=()=>{im._bad=1};im.src="assets/slime_"+t0+".png";LD[k]=im}return LD[k]._ok?LD[k]:null};
  const base=t0=>{const c=custom(t0);if(c)return c;if(t0==6&&bk){const b=ld("assets/boss_"+bk+".png");if(okI(b))return b}const y=YIMG[MGMT[t0][0]];return okI(y)?y:null};
  const slime=t0=>{const sp=base(t0),key=sp?sp.src||"y"+t0:"e";let e=SC[t0];if(e&&e.key===key)return e;
   const R0=RR[t0],D=R0*2*1.2,c=document.createElement("canvas");c.width=c.height=Math.ceil(D*dpr);const k=c.getContext("2d");k.scale(dpr,dpr);k.translate(D/2,D/2);const col=MGMT[t0][3];
   let gr=k.createRadialGradient(-R0*.3,-R0*.35,R0*.08,0,0,R0);gr.addColorStop(0,_mix(col,"w",.6));gr.addColorStop(.55,col);gr.addColorStop(1,_mix(col,"k",.45));k.globalAlpha=.94;k.fillStyle=gr;k.beginPath();k.arc(0,0,R0,0,6.283);k.fill();k.globalAlpha=1;
-  if(sp){const z=R0*1.55;k.drawImage(sp,-z/2,-z/2+R0*.05,z,z)}else{k.font=R0*1.25+"px serif";k.textAlign="center";k.textBaseline="middle";k.fillText(MGMT[t0][0],0,R0*.06)}   // істота ВСЕРЕДИНІ желе, повністю видима
+  if(sp){const z=R0*1.55;k.drawImage(sp,-z/2,-z/2+R0*.05,z,z)}else{k.font=R0*1.25+"px serif";k.textAlign="center";k.textBaseline="middle";k.fillText(MGMT[t0][0],0,R0*.06)}
   gr=k.createRadialGradient(0,-R0*.05,R0*.3,0,0,R0);gr.addColorStop(0,_rgba(col,0));gr.addColorStop(.75,_rgba(col,.12));gr.addColorStop(1,_rgba(_mix(col,"k",.2).replace(/rgb\((.*)\)/,"#000"),0));
-  gr=k.createRadialGradient(0,0,R0*.35,0,0,R0);gr.addColorStop(0,_rgba(col,0));gr.addColorStop(1,_rgba(col,.55));k.fillStyle=gr;k.beginPath();k.arc(0,0,R0,0,6.283);k.fill();   // тонка желейна плівка поверх
-  k.save();k.rotate(-.65);let hg=k.createLinearGradient(-R0*.6,0,R0*.2,0);hg.addColorStop(0,"rgba(255,255,255,.0)");hg.addColorStop(.5,"rgba(255,255,255,.7)");hg.addColorStop(1,"rgba(255,255,255,0)");k.fillStyle=hg;k.beginPath();k.ellipse(-R0*.18,-R0*.58,R0*.42,R0*.15,0,0,6.283);k.fill();k.restore();                  // глянцевий відблиск
+  gr=k.createRadialGradient(0,0,R0*.35,0,0,R0);gr.addColorStop(0,_rgba(col,0));gr.addColorStop(1,_rgba(col,.55));k.fillStyle=gr;k.beginPath();k.arc(0,0,R0,0,6.283);k.fill();
+  k.save();k.rotate(-.65);let hg=k.createLinearGradient(-R0*.6,0,R0*.2,0);hg.addColorStop(0,"rgba(255,255,255,.0)");hg.addColorStop(.5,"rgba(255,255,255,.7)");hg.addColorStop(1,"rgba(255,255,255,0)");k.fillStyle=hg;k.beginPath();k.ellipse(-R0*.18,-R0*.58,R0*.42,R0*.15,0,0,6.283);k.fill();k.restore();
   k.fillStyle="rgba(255,255,255,.85)";k.beginPath();k.arc(-R0*.42,-R0*.28,R0*.07,0,6.283);k.fill();
-  k.strokeStyle=_rgba(_mix(col,"w",.55),.5);k.lineWidth=R0*.09;k.lineCap="round";k.beginPath();k.arc(0,0,R0*.86,.25*Math.PI,.8*Math.PI);k.stroke();                    // нижній підсвіт
+  k.strokeStyle=_rgba(_mix(col,"w",.55),.5);k.lineWidth=R0*.09;k.lineCap="round";k.beginPath();k.arc(0,0,R0*.86,.25*Math.PI,.8*Math.PI);k.stroke();
   k.strokeStyle=_mix(col,"k",.5);k.lineWidth=Math.max(2,R0*.055);k.beginPath();k.arc(0,0,R0*.985,0,6.283);k.stroke();
   if(t0>=6){k.strokeStyle=_rgba(col,.9);k.lineWidth=R0*.05;k.beginPath();k.arc(0,0,R0*1.03,0,6.283);k.stroke()}
   e=SC[t0]={cv:c,D,key};return e};
@@ -51,10 +50,9 @@ function mgmStart(){
   const p=MGMPT[nt]*g.cb;g.sc+=p;if(nt>g.mx)g.mx=nt;const n=mk(xx,yy,nt,(a.vx+b.vx)/2,Math.min(-30*s,(a.vy+b.vy)/2-50*s));n.gs=.7;n.sq=.16;
   if(nt==7){n.pop=.7;banner("👑 "+t("Король Хякі!|Hyakki King!"));sfx("reveal")}else sfx(nt>=5?"bossdie":"combo",null,g.cb);
   g.B.push(n);burst(xx,yy,MGMT[nt][3],7+nt*3);g.rg.push({x:xx,y:yy,r:n.r,c:MGMT[nt][3],l:.5,m:.5});txt("+"+p+(g.cb>1?" ×"+g.cb:""),xx,yy-n.r,"#ffe27a",13+nt);
-  for(const o of g.B)if(o!==n&&!o.dead){const dx=o.x-xx,dy=o.y-yy,d=Math.hypot(dx,dy)||1,R2=n.r*2.4;if(d<R2){const k=(1-d/R2)*110*s;o.vx+=dx/d*k;o.vy+=dy/d*k}}   // сусідів «розпихає» хвилею
+  for(const o of g.B)if(o!==n&&!o.dead){const dx=o.x-xx,dy=o.y-yy,d=Math.hypot(dx,dy)||1,R2=n.r*2.4;if(d<R2){const k=(1-d/R2)*110*s;o.vx+=dx/d*k;o.vy+=dy/d*k}}
   if(nt>=5)g.shake=.2};
  const pop=b=>{b.dead=1;const p=150*Math.max(1,g.cb);g.sc+=p;g.kings++;g.mx=7;burst(b.x,b.y,"#ffd24a",46,260);burst(b.x,b.y,"#ff2a5f",24,200);g.rg.push({x:b.x,y:b.y,r:b.r*1.8,c:"#ffd24a",l:.6,m:.6});txt("+"+p,b.x,b.y-b.r*.4,"#ffd24a",30);banner(t("БАХ! Місце звільнено|POP! Room cleared"));sfx("bossdie",null,9);g.shake=.4;navigator.vibrate&&navigator.vibrate([40,30,80])};
- // ── Фізика: фіксований крок 1/120 с, м'які контакти «пружина + демпфер» (критично-демпфірована з легким відскоком) → без дрижання, слизні гнучко відштовхують і обтікають одне одного ──
  const step=()=>{const B=g.B,n=B.length,mer=[];
   for(const b of B){b.vy+=GR*DT;b.cq=0;b.age+=DT}
   for(const b of B){let pen=CL-(b.x-b.r);if(pen>0){b.vx+=(OM*OM*pen+2*ZE*OM*Math.max(0,-b.vx))*DT;b.vy*=1-3*DT;b.cq=Math.max(b.cq,Math.min(.2,pen/b.r*2));b.ca=Math.PI}
@@ -64,7 +62,7 @@ function mgmStart(){
    if(a.t==b.t&&a.t<7&&!a.pop&&!b.pop&&d<mr*1.02&&!a.mg&&!b.mg){a.mg=b.mg=1;mer.push([a,b]);continue}
    if(d>=mr||d<.0001)continue;const nx=dx/d,ny=dy/d,pen=mr-d,sm=a.m+b.m,wa=b.m/sm,wb=a.m/sm,vn=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;
    const Ac=OM*OM*pen+2*ZE*OM*Math.max(0,-vn);a.vx-=nx*Ac*wa*DT;a.vy-=ny*Ac*wa*DT;b.vx+=nx*Ac*wb*DT;b.vy+=ny*Ac*wb*DT;
-   const tx=(b.vx-a.vx)-vn*nx,ty=(b.vy-a.vy)-vn*ny,f=Math.min(1,5*DT);a.vx+=tx*f*wa;a.vy+=ty*f*wa;b.vx-=tx*f*wb;b.vy-=ty*f*wb;                       // тертя: слизні «перетікають» один повз одного
+   const tx=(b.vx-a.vx)-vn*nx,ty=(b.vy-a.vy)-vn*ny,f=Math.min(1,5*DT);a.vx+=tx*f*wa;a.vy+=ty*f*wa;b.vx-=tx*f*wb;b.vy-=ty*f*wb;
    if(-vn>140*s){const w=Math.min(.55,-vn/(1100*s));a.sv+=w;b.sv+=w}
    const q=Math.min(.26,pen/mr*2.6);if(q>a.cq){a.cq=q;a.ca=Math.atan2(ny,nx)}if(q>b.cq){b.cq=q;b.ca=Math.atan2(-ny,-nx)}}}
   for(const b of B){b.vx*=1-.12*DT;const v=Math.hypot(b.vx,b.vy),mv=1300*s;if(v>mv){b.vx*=mv/v;b.vy*=mv/v}b.x+=b.vx*DT;b.y+=b.vy*DT}
@@ -73,7 +71,12 @@ function mgmStart(){
  const soft=dt=>{for(const b of g.B){const acc=(b.cq-b.sq)*320-b.sv*14;b.sv+=acc*dt;b.sq+=b.sv*dt;if(b.sq>.36)b.sq=.36;if(b.sq<-.16)b.sq=-.16;if(b.cq>.02)b.sa=b.ca;
    const ag=(1-b.gs)*280-b.gv*11;b.gv+=ag*dt;b.gs+=b.gv*dt;if(b.pop!=null){b.pop-=dt;b.gs=1+(1-b.pop/.7)*.55+Math.sin(g.el*40)*.03;if(b.pop<=0)pop(b)}}g.B=g.B.filter(b=>!b.dead)};
  const draw=()=>{x.clearRect(0,0,W,H);x.save();if(g.shake>0)x.translate((R()-.5)*8*g.shake*3,(R()-.5)*8*g.shake*3);
-  x.fillStyle="rgba(8,5,20,.3)";x.strokeStyle="rgba(255,183,3,.55)";x.lineWidth=3;x.beginPath();x.roundRect?x.roundRect(CL-3,CT,CW+6,CH+3,16):x.rect(CL-3,CT,CW+6,CH+3);x.fill();x.stroke();
+  x.fillStyle="rgba(8,5,20,.3)";x.strokeStyle="rgba(255,183,3,.55)";x.lineWidth=3;x.beginPath();
+  
+  // 🛠 БЕЗПЕЧНЕ МАЛЮВАННЯ СКРУГЛЕНОГО ПРЯМОКУТНИКА (СУМІСНЕ ЗІ СТАРИМИ БРАУЗЕРАМИ)
+  if(typeof x.roundRect==="function"){x.roundRect(CL-3,CT,CW+6,CH+3,16)}else{x.rect(CL-3,CT,CW+6,CH+3)}
+  
+  x.fill();x.stroke();
   if(g.dg>0){x.fillStyle="rgba(255,40,40,"+(g.dg/MGM.OVER*.2)+")";x.fillRect(CL,CT,CW,LINE-CT)}
   x.strokeStyle=g.dg>0?"rgba(255,70,70,"+(.6+.4*Math.sin(g.el*16))+")":"rgba(255,110,110,.5)";x.setLineDash([8,8]);x.lineWidth=g.dg>0?3:2;x.beginPath();x.moveTo(CL,LINE);x.lineTo(CR,LINE);x.stroke();x.setLineDash([]);
   const body=(xx,yy,t0,o)=>{o=o||{};const e=slime(t0),D=e.D,sq=o.sq||0,gs=o.gs||1,st=Math.min(.1,Math.abs(o.vy||0)/(1500*s));x.save();x.translate(xx,yy);x.rotate(o.sa||0);x.scale((1-sq)*gs,(1+sq*.8)*gs);x.rotate(-(o.sa||0));x.scale(1-st*.6,1+st);x.drawImage(e.cv,-D/2,-D/2,D,D);x.restore()};
